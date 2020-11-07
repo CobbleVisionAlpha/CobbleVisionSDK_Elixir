@@ -68,7 +68,7 @@ def module CobbleVision_API do
   # @returns {Task} Task with the UploadMediaResponse. The body is in JSON format.
   def uploadMediaFile (price_category, publicBool, name, keys, file)
     try do
-      uploadMediaTask=Task.async(fn->
+      uploadMediaTask = Task.async(fn->
         endpoint = "media"
         if String.at(BaseURL, String.length(BaseURL)-1] = "/" do
           raise "BaseURL for CobbleVision is incorrect. Must end with slash!"
@@ -117,353 +117,388 @@ def module CobbleVision_API do
       raise e.toString()
     end
   end
-# This function deletes Media from CobbleVision
-# @async
-# @function deleteMediaFile()  
-# @param {Array} IDArray Array of ID's as Strings
-# @returns {Task} Task with the DeleteMediaResponse. The body is in JSON format.
+
+  # This function deletes Media from CobbleVision
+  # @async
+  # @function deleteMediaFile()  
+  # @param {Array} IDArray Array of ID's as Strings
+  # @returns {Task} Task with the DeleteMediaResponse. The body is in JSON format.
 
   def deleteMediaFile (IDArray)
     try do
-      endpoint = "media"
+      deleteMediaTask = Task.async(fn->
+        endpoint = "media"
 
-      if String.at(BaseURL, String.length(BaseURL)-1] = "/" do
-        raise "BaseURL for CobbleVision is incorrect. Must end with slash!"
-      end
-
-      keyArray = ["IDArray", "Your Api User Key", "Your API Token"]
-      valueArray = [IDArray, apiUserName, apiToken]
-      typeArray = ["Array", "String", "String"]
-    
-      try do
-        checkTypeOfParameter(valueArray, typeArray)
-      rescue => e
-        err_message = String.to_integer(e.toString())
-        if is_integer(err_message) do
-          raise "The provided data is not valid: ", keyArray[err_message] + "is not of type " + typeArray[err_message]
-        else
-          raise e.toString()
+        if String.at(BaseURL, String.length(BaseURL)-1] = "/" do
+          raise "BaseURL for CobbleVision is incorrect. Must end with slash!"
         end
-      end
-        
-      if !(checkListForInvalidObjectID(IDArray)) do
-        raise "You supplied a media ID that is not valid!"
-      end
-    
-      auth = [hackney => [ basic_auth => { apiUserName => apiToken }]]
-      headerObject = %{"Content-Type" => "application/json", "Accept" => "application/json"}
-    
-      HTTPPoison.Response reqResponse = HTTPPoison.delete(BaseURL + endpoint + "&id=" + Poison.encode(IDArray), headerObject, auth)
-    
-      if debugging == True:
-        print("Response from Media Deletion: ", r.text)
-    
-      return r
-  except Exception as e:
-    exc_type, exc_object, exc_tb = sys.exc_info()
-    print(exc_type, exc_object, exc_tb)
-    raise Exception(str(e))
-    
 
-# Launch a calculation with CobbleVision's Web API. Returns a response object with body, response and headers properties, deducted from npm request module;
-# @async
-# @function launchCalculation() 
-# @param {Array} algorithms Array of Algorithm Names
-# @param {Array} media Array of Media ID's  
-# @param {String} type Type of Job - Currently Always "QueuedJob"
-# @param {String} [notificationURL] Optional - Notify user upon finishing calculation!
-# @returns {Task} Task with the LaunchCalculationResponse. The body is in JSON format.  
-
-def launchCalculation(algorithms, media, type, notificationURL)
-  try do
-    endpoint = "calculation"
+        keyArray = ["IDArray", "Your Api User Key", "Your API Token"]
+        valueArray = [IDArray, apiUserName, apiToken]
+        typeArray = ["Array", "String", "String"]
     
-    if String.at(BaseURL, String.length(BaseURL)-1] = "/" do
-      raise "BaseURL for CobbleVision is incorrect. Must end with slash!"
-    end
-
-    keyArray = ["algorithms", "media", "type", "notificationURL", "Your Api Username", "Your API Token"]
-    valueArray = [algorithms, media, type, notificationURL, apiUserName, apiToken]
-    typeArray = ["Array", "Array", "String", "String", "String", "String"]
-    
-    try do
-      checkTypeOfParameter(valueArray, typeArray)
-    rescue => e
-      err_message = String.to_integer(e.toString())
-      if is_integer(err_message) do
-        raise "The provided data is not valid: ", keyArray[err_message] + "is not of type " + typeArray[err_message]
-      else
-        raise e.toString()
-      end
-    end
-        
-    if enum.find_index(valid_job_types, fn x -> x === type) != -1 do
-      raise "Your job type is not valid!"
-    end
-
-    if !(checkListForInvalidObjectID(media)) do
-      raise "You supplied a media ID that is not valid!"
-    end
-      
-    if !(checkListForInvalidObjectID(algorithms)) do
-      raise "You supplied an algorithm ID that is not valid!"
-    end
-
-    jsonObject = %{"algorithms" => algorithms, "media" => media, "type" => type}
-    
-    auth = [hackney => [ basic_auth => { apiUserName => apiToken }]]
-    headerObject = %{"Content-Type" => "application/json", "Accept" => "application/json"}
-
-    urlNotificationBool = False
-    if notificationURL != nil && URI.parse(notificationURL) && URI.parse(notificationURL).scheme != nil && URI.parse(notificationURL).host =~ "." do
-      Map.put(jsonObject, "notificationURL", notificationURL)
-    end
-    
-    HTTPPoison.Response reqResponse = HTTPPoison.post(BaseURL + endpoint, jsonObject, headerObject, auth)
-    
-    if debugging == True:
-      print("Response from Calculation Launch: ", r.text)
-    
-    return r
-  except Exception as e:
-    exc_type, exc_object, exc_tb = sys.exc_info()
-    print(exc_type, exc_object, exc_tb)
-    raise Exception(str(e))
-    
-# This function waits until the given calculation ID's are ready to be downloaded!
-# @async
-# @function waitForCalculationCompletion() 
-# @param {Array} calculationIDArray Array of Calculation ID's
-# @returns {Task} Task with the WaitForCalculationResponse. The body is in JSON format.   
-
-def waitForCalculationCompletion(calculationIDArray)
-  try do
-    endpoint = "calculation"
-    
-    if String.at(BaseURL, String.length(BaseURL)-1] = "/" do
-      raise "BaseURL for CobbleVision is incorrect. Must end with slash!"
-    end
-
-    keyArray = ["calculationIDArray", "Your Api Username", "Your API Token"]
-    valueArray = [calculationIDArray, apiUserName, apiToken]
-    typeArray = ["Array", "String", "String"]
-    
-    try do
-      checkTypeOfParameter(valueArray, typeArray)
-    rescue => e
-      err_message = String.to_integer(e.toString())
-      if is_integer(err_message) do
-        raise "The provided data is not valid: ", keyArray[err_message] + "is not of type " + typeArray[err_message]
-      else
-        raise e.toString()
-      end
-    end
-        
-    if !(checkListForInvalidObjectID(calculationIDArray)) do
-      raise "You supplied a calculation ID which is not valid!"
-    end
-    
-    auth = [hackney => [ basic_auth => { apiUserName => apiToken }]]
-    headerObject= %{"Content-Type" => "application/json", "Accept" => "application/json"}
-    
-    calculationFinishedBool = False
-    
-    while calculationFinishedBool == false do
-      HTTPPoison.Response reqResponse = HTTPPoison.get(BaseURL + endpoint + "&id=" + Poison.encode(calculationIDArray) + "&returnOnlyStatusBool=true", headerObject, auth)
-      
-      try do
-        result = Poison.decode(reqResponse.body[1].data)
-        if is_list(result) do
-          Enum.each(result, fn(element ->
-            if Map.has_key(element, "status") do
-              if element.status === "finished" do
-                calculationFinishedBool = true
-              end
-            else
-              calculationFinishedBool = false
-              raise "Interrupt"
-            end
-          )
-        else
-          if Map.has_key(result, "error") do
-            calculationFinishedBool = True
+        try do
+          checkTypeOfParameter(valueArray, typeArray)
+        rescue => e
+          err_message = String.to_integer(e.toString())
+          if is_integer(err_message) do
+            raise "The provided data is not valid: ", keyArray[err_message] + "is not of type " + typeArray[err_message]
+          else
+            raise e.toString()
           end
         end
-      rescue => e
-        if e.message === "Interrupt" do
-          calculationFinishedBool = false
-        else
-          raise e.toString()
+        
+        if !(checkListForInvalidObjectID(IDArray)) do
+          raise "You supplied a media ID that is not valid!"
         end
-      end
-      
-      if calculationFinishedBool == false do
-        wait(3000)
-      end
-    end
-
-    if debugging == True:
-      print("Response from Calculation Launch: ", r.text)
     
-    return r
-  except Exception as e:
-    exc_type, exc_object, exc_tb = sys.exc_info()
-    print(exc_type, exc_object, exc_tb)
-    raise Exception(str(e))
+        auth = [hackney => [ basic_auth => { apiUserName => apiToken }]]
+        headerObject = %{"Content-Type" => "application/json", "Accept" => "application/json"}
+    
+        HTTPPoison.Response reqResponse = HTTPPoison.delete(BaseURL + endpoint + "&id=" + Poison.encode(IDArray), headerObject, auth)
+    
+        if debugging == true do
+         IO.puts "Response from Delete Media: " + reqResponse.body
+        end
+
+        return reqResponse)
+      return deleteMediaTask
+    rescue => e
+      if debugging == true do
+        IO.puts e.toString()
+      end
+      raise e.toString()
+    end
+  end
+    
+
+  # Launch a calculation with CobbleVision's Web API. Returns a response object with body, response and headers properties, deducted from npm request module;
+  # @async
+  # @function launchCalculation() 
+  # @param {Array} algorithms Array of Algorithm Names
+  # @param {Array} media Array of Media ID's  
+  # @param {String} type Type of Job - Currently Always "QueuedJob"
+  # @param {String} [notificationURL] Optional - Notify user upon finishing calculation!
+  # @returns {Task} Task with the LaunchCalculationResponse. The body is in JSON format.  
+
+  def launchCalculation(algorithms, media, type, notificationURL)
+    try do
+      launchCalculationTask = Task.async(fn->
+        endpoint = "calculation"
+    
+        if String.at(BaseURL, String.length(BaseURL)-1] = "/" do
+          raise "BaseURL for CobbleVision is incorrect. Must end with slash!"
+        end
+
+        keyArray = ["algorithms", "media", "type", "notificationURL", "Your Api Username", "Your API Token"]
+        valueArray = [algorithms, media, type, notificationURL, apiUserName, apiToken]
+        typeArray = ["Array", "Array", "String", "String", "String", "String"]
+    
+        try do
+          checkTypeOfParameter(valueArray, typeArray)
+        rescue => e
+          err_message = String.to_integer(e.toString())
+          if is_integer(err_message) do
+            raise "The provided data is not valid: ", keyArray[err_message] + "is not of type " + typeArray[err_message]
+          else
+            raise e.toString()
+          end
+        end
+        
+        if enum.find_index(valid_job_types, fn x -> x === type) != -1 do
+          raise "Your job type is not valid!"
+        end
+
+        if !(checkListForInvalidObjectID(media)) do
+          raise "You supplied a media ID that is not valid!"
+        end
+      
+        if !(checkListForInvalidObjectID(algorithms)) do
+          raise "You supplied an algorithm ID that is not valid!"
+        end
+
+        jsonObject = %{"algorithms" => algorithms, "media" => media, "type" => type}
+    
+        auth = [hackney => [ basic_auth => { apiUserName => apiToken }]]
+        headerObject = %{"Content-Type" => "application/json", "Accept" => "application/json"}
+
+        if notificationURL != nil && URI.parse(notificationURL) && URI.parse(notificationURL).scheme != nil && URI.parse(notificationURL).host =~ "." do
+          Map.put(jsonObject, "notificationURL", notificationURL)
+        end
+    
+        HTTPPoison.Response reqResponse = HTTPPoison.post(BaseURL + endpoint, jsonObject, headerObject, auth)
+    
+        if debugging == true do
+         IO.puts "Response from  launch Calc: " + reqResponse.body
+        end
+
+        return reqResponse)
+      return launchCalculationTask
+    rescue => e
+      if debugging == true do
+        IO.puts e.toString()
+      end
+      raise e.toString()
+    end
+  end
+    
+  # This function waits until the given calculation ID's are ready to be downloaded!
+  # @async
+  # @function waitForCalculationCompletion() 
+  # @param {Array} calculationIDArray Array of Calculation ID's
+  # @returns {Task} Task with the WaitForCalculationResponse. The body is in JSON format.   
+
+  def waitForCalculationCompletion(calculationIDArray)
+    try do
+      waitForCalculationTask = Task.async(fn->
+        endpoint = "calculation"
+    
+        if String.at(BaseURL, String.length(BaseURL)-1] = "/" do
+          raise "BaseURL for CobbleVision is incorrect. Must end with slash!"
+        end
+
+        keyArray = ["calculationIDArray", "Your Api Username", "Your API Token"]
+        valueArray = [calculationIDArray, apiUserName, apiToken]
+        typeArray = ["Array", "String", "String"]
+    
+        try do
+          checkTypeOfParameter(valueArray, typeArray)
+        rescue => e
+          err_message = String.to_integer(e.toString())
+          if is_integer(err_message) do
+            raise "The provided data is not valid: ", keyArray[err_message] + "is not of type " + typeArray[err_message]
+          else
+            raise e.toString()
+          end
+        end
+        
+        if !(checkListForInvalidObjectID(calculationIDArray)) do
+          raise "You supplied a calculation ID which is not valid!"
+        end
+    
+        auth = [hackney => [ basic_auth => { apiUserName => apiToken }]]
+        headerObject= %{"Content-Type" => "application/json", "Accept" => "application/json"}
+    
+        calculationFinishedBool = False
+    
+        while calculationFinishedBool == false do
+          HTTPPoison.Response reqResponse = HTTPPoison.get(BaseURL + endpoint + "&id=" + Poison.encode(calculationIDArray) + "&returnOnlyStatusBool=true", headerObject, auth)
+      
+          try do
+            result = Poison.decode(reqResponse.body[1].data)
+            if is_list(result) do
+              Enum.each(result, fn(element ->
+                if Map.has_key(element, "status") do
+                  if element.status === "finished" do
+                    calculationFinishedBool = true
+                  end
+                else
+                  calculationFinishedBool = false
+                  raise "Interrupt"
+                end
+              )
+            else
+              if Map.has_key(result, "error") do
+                calculationFinishedBool = True
+              end
+            end
+          rescue => e
+            if e.message === "Interrupt" do
+              calculationFinishedBool = false
+            else
+              raise e.toString()
+            end
+          end
+      
+          if calculationFinishedBool == false do
+            wait(3000)
+          end
+        end
+
+        if debugging == true do
+          IO.puts "Response from Wait For Calc: " + reqResponse.body
+        end
+
+        return reqResponse)
+      return waitForCalculationTask
+    rescue => e
+      if debugging == true do
+        IO.puts e.toString()
+      end
+      raise e.toString()
+    end
+  end
 
 
-# This function deletes Result Files or calculations in status "waiting" from CobbleVision. You cannot delete finished jobs beyond their result files, as we keep them for billing purposes.
-# @async
-# @function deleteCalculation()
-# @param {Array} IDArray Array of ID's as Strings
-# @returns {Task} Task with the DeleteCalculationResponse. The body is in JSON format.
+  # This function deletes Result Files or calculations in status "waiting" from CobbleVision. You cannot delete finished jobs beyond their result files, as we keep them for billing purposes.
+  # @async
+  # @function deleteCalculation()
+  # @param {Array} IDArray Array of ID's as Strings
+  # @returns {Task} Task with the DeleteCalculationResponse. The body is in JSON format.
        
-def deleteCalculation(IDArray)
-  try do
-    endpoint = "calculation"
-    
-    if String.at(BaseURL, String.length(BaseURL)-1] = "/" do
-      raise "BaseURL for CobbleVision is incorrect. Must end with slash!"
-    end
-
-    keyArray = ["IDArray", "Your Api User Key", "Your API Token"]
-    valueArray = [IDArray, apiUserName, apiToken]
-    typeArray = ["Array", "String", "String"]
-    
+  def deleteCalculation(IDArray)   
     try do
-      checkTypeOfParameter(valueArray, typeArray)
-    rescue => e
-      err_message = String.to_integer(e.toString())
-      if is_integer(err_message) do
-        raise "The provided data is not valid: ", keyArray[err_message] + "is not of type " + typeArray[err_message]
-      else
-        raise e.toString()
-      end
-    end
-
-    if !(checkListForInvalidObjectID(IDArray)) do
-      raise "You supplied a calc ID that is not valid!"
-    end
-
-    auth = [hackney => [ basic_auth => { apiUserName => apiToken }]]
-    headerObject= %{"Content-Type" => "application/json", "Accept" => "application/json"}
+      deleteCalculationTask = Task.async(fn->
+        endpoint = "calculation"
     
-    HTTPPoison.Response reqResponse = HTTPPoison.delete(BaseURL + endpoint + "&id=" + Poison.encode(IDArray), headerObject, auth)
+        if String.at(BaseURL, String.length(BaseURL)-1] = "/" do
+          raise "BaseURL for CobbleVision is incorrect. Must end with slash!"
+        end
+
+        keyArray = ["IDArray", "Your Api User Key", "Your API Token"]
+        valueArray = [IDArray, apiUserName, apiToken]
+        typeArray = ["Array", "String", "String"]
+    
+        try do
+          checkTypeOfParameter(valueArray, typeArray)
+        rescue => e
+          err_message = String.to_integer(e.toString())
+          if is_integer(err_message) do
+            raise "The provided data is not valid: ", keyArray[err_message] + "is not of type " + typeArray[err_message]
+          else
+            raise e.toString()
+          end
+        end
+
+        if !(checkListForInvalidObjectID(IDArray)) do
+          raise "You supplied a calc ID that is not valid!"
+        end
+
+        auth = [hackney => [ basic_auth => { apiUserName => apiToken }]]
+        headerObject = %{"Content-Type" => "application/json", "Accept" => "application/json"}
+    
+        HTTPPoison.Response reqResponse = HTTPPoison.delete(BaseURL + endpoint + "&id=" + Poison.encode(IDArray), headerObject, auth)
       
-    if debugging == True:
-      print("Response from Media Deletion: ", r.text)
-    
-    return r
-  except Exception as e:
-    exc_type, exc_object, exc_tb = sys.exc_info()
-    print(exc_type, exc_object, exc_tb)
-    raise Exception(str(e))
-    
-# Get Calculation Result with CobbleVision's Web API. Returns a response object with body, response and headers properties, deducted from npm request module;
-# @async
-# @function getCalculationResult()
-# @param {Array} IDArray ID of calculation to return result Array 
-# @param {Boolean} returnOnlyStatusBool Return full result or only status? See Doc for more detailed description!
-# @returns {Task} Task with the GetCalculationResult. The body is in json format.
+        if debugging == true do
+          IO.puts "Response from Delete Calc: " + reqResponse.body
+        end
 
-def getCalculationResult(IDArray, returnOnlyStatusBool)
-  try do
-    endpoint = "calculation"
-    
-    if String.at(BaseURL, String.length(BaseURL)-1] = "/" do
-      raise "BaseURL for CobbleVision is incorrect. Must end with slash!"
-    end
-
-    keyArray = ["IDArray", "returnOnlyStatusBool", "Your Api Username", "Your API Token"]
-    valueArray = [IDArray, returnOnlyStatusBool, apiUserName, apiToken]
-    typeArray = ["Array", "Boolean", "String", "String"]
-    
-    try do
-      checkTypeOfParameter(valueArray, typeArray)
+        return reqResponse)
+      return deleteCalculationTask
     rescue => e
-      err_message = String.to_integer(e.toString())
-      if is_integer(err_message) do
-        raise "The provided data is not valid: ", keyArray[err_message] + "is not of type " + typeArray[err_message]
-      else
-        raise e.toString()
+      if debugging == true do
+        IO.puts e.toString()
       end
+      raise e.toString()
     end
+  end
+    
+  # Get Calculation Result with CobbleVision's Web API. Returns a response object with body, response and headers properties, deducted from npm request module;
+  # @async
+  # @function getCalculationResult()
+  # @param {Array} IDArray ID of calculation to return result Array 
+  # @param {Boolean} returnOnlyStatusBool Return full result or only status? See Doc for more detailed description!
+  # @returns {Task} Task with the GetCalculationResult. The body is in json format.
+  def getCalculationResult(IDArray, returnOnlyStatusBool)
+    try do
+      getCalculationResultTask = Task.async(fn->
+        endpoint = "calculation"
+    
+        if String.at(BaseURL, String.length(BaseURL)-1] = "/" do
+          raise "BaseURL for CobbleVision is incorrect. Must end with slash!"
+        end
 
-    if !(checkListForInvalidObjectID(IDArray)) do
-      raise "You supplied a calc ID that is not valid!"
-    end
+        keyArray = ["IDArray", "returnOnlyStatusBool", "Your Api Username", "Your API Token"]
+        valueArray = [IDArray, returnOnlyStatusBool, apiUserName, apiToken]
+        typeArray = ["Array", "Boolean", "String", "String"]
+    
+        try do
+          checkTypeOfParameter(valueArray, typeArray)
+        rescue => e
+          err_message = String.to_integer(e.toString())
+          if is_integer(err_message) do
+            raise "The provided data is not valid: ", keyArray[err_message] + "is not of type " + typeArray[err_message]
+          else
+            raise e.toString()
+          end
+        end
 
-    auth = [hackney => [ basic_auth => { apiUserName => apiToken }]]
-    headerObject= %{"Content-Type" => "application/json", "Accept" => "application/json"}
+        if !(checkListForInvalidObjectID(IDArray)) do
+          raise "You supplied a calc ID that is not valid!"
+        end
+
+        auth = [hackney => [ basic_auth => { apiUserName => apiToken }]]
+        headerObject= %{"Content-Type" => "application/json", "Accept" => "application/json"}
    
-    HTTPPoison.Response reqResponse = HTTPPoison.get(BaseURL + endpoint + "&id=" + Poison.encode(IDArray) + "&returnOnlyStatusBool=" + Poison.decode(returnOnlyStatusBool), headerObject, auth)
+        HTTPPoison.Response reqResponse = HTTPPoison.get(BaseURL + endpoint + "&id=" + Poison.encode(IDArray) + "&returnOnlyStatusBool=" + Poison.decode(returnOnlyStatusBool), headerObject, auth)
     
-    if debugging == True:
-      print("Response from Calculation Launch: ", r.text)
-    
-    return r
-  except Exception as e:
-    exc_type, exc_object, exc_tb = sys.exc_info()
-    print(exc_type, exc_object, exc_tb)
-    raise Exception(str(e))
+        if debugging == true do
+          IO.puts "Response from Delete Calc: " + reqResponse.body
+        end
 
-# Request your calculation result by ID with the CobbleVision API. Returns a response object with body, response and headers properties, deducted from npm request module;
-# @async
-# @function getCalculationVisualization()
-# @param {String} id ID of calculation to return result/check String
-# @param {Boolean} returnBase64Bool Return Base64 String or image buffer as string?
-# @param {Integer} width target width of visualization file
-# @param {Integer} height target height of visualization file
-# @returns {Task} Task with the GetCalculationVisualization Result. The body is in binary format.
-
-def getCalculationVisualization(id, returnBase64Bool, width, height)
-  try:
-    endpoint = "calculation/visualization"
-    
-    if String.at(BaseURL, String.length(BaseURL)-1] = "/" do
-      raise "BaseURL for CobbleVision is incorrect. Must end with slash!"
-    end
-
-    keyArray = ["id", "returnBase64Bool", "width", "height", "Your Api Username", "Your API Token"]
-    valueArray = [id, returnBase64Bool, width, height, apiuserName, apitoken]
-    typeArray = ["String", "Boolean", "Number", "Number" "String", "String"]
-    
-    try do
-      checkTypeOfParameter(valueArray, typeArray)
+        return reqResponse)
+      return getCalculationResultTask
     rescue => e
-      err_message = String.to_integer(e.toString())
-      if is_integer(err_message) do
-        raise "The provided data is not valid: ", keyArray[err_message] + "is not of type " + typeArray[err_message]
-      else
-        raise e.toString()
+      if debugging == true do
+        IO.puts e.toString()
       end
+      raise e.toString()
     end
+  end
 
-    if !(checkListForInvalidObjectID([id])) do
-      raise "You supplied a calc ID that is not valid!"
-    end
+  # Request your calculation result by ID with the CobbleVision API. Returns a response object with body, response and headers properties, deducted from npm request module;
+  # @async
+  # @function getCalculationVisualization()
+  # @param {String} id ID of calculation to return result/check String
+  # @param {Boolean} returnBase64Bool Return Base64 String or image buffer as string?
+  # @param {Integer} width target width of visualization file
+  # @param {Integer} height target height of visualization file
+  # @returns {Task} Task with the GetCalculationVisualization Result. The body is in binary format.
 
-    if width==0 do
-      raise "The width cannot be zero."
-    end
-
-    if height==0:
-      raise "The height cannot be zero."
-    end
-
-    auth = [hackney => [ basic_auth => { apiUserName => apiToken }]]
-    headerObject= %{"Content-Type" => "application/json", "Accept" => "application/json"}
+  def getCalculationVisualization(id, returnBase64Bool, width, height)
+    try do
+      getCalculationVisTask = Task.async(fn->
+        endpoint = "calculation/visualization"
     
-    HTTPPoison.Response reqResponse = HTTPPoison.get(BaseURL + endpoint + "?id=" + id + "&returnBase64Bool=" + Poison.decode(returnBase64Bool) + "&width=" + to_string(width) + "&height=" + to_string(height), headerObject, auth)
+        if String.at(BaseURL, String.length(BaseURL)-1] = "/" do
+          raise "BaseURL for CobbleVision is incorrect. Must end with slash!"
+        end
+
+        keyArray = ["id", "returnBase64Bool", "width", "height", "Your Api Username", "Your API Token"]
+        valueArray = [id, returnBase64Bool, width, height, apiuserName, apitoken]
+        typeArray = ["String", "Boolean", "Number", "Number" "String", "String"]
     
-    if debugging == True:
-      print("Response from Calculation Launch: ", r.text)
+        try do
+          checkTypeOfParameter(valueArray, typeArray)
+        rescue => e
+          err_message = String.to_integer(e.toString())
+          if is_integer(err_message) do
+            raise "The provided data is not valid: ", keyArray[err_message] + "is not of type " + typeArray[err_message]
+          else
+            raise e.toString()
+          end
+        end
+
+        if !(checkListForInvalidObjectID([id])) do
+          raise "You supplied a calc ID that is not valid!"
+        end
+
+        if width==0 do
+          raise "The width cannot be zero."
+        end
+
+        if height==0:
+          raise "The height cannot be zero."
+        end
+
+        auth = [hackney => [ basic_auth => { apiUserName => apiToken }]]
+        headerObject= %{"Content-Type" => "application/json", "Accept" => "application/json"}
     
-    return r
-  except Exception as e:
-    exc_type, exc_object, exc_tb = sys.exc_info()
-    print(exc_type, exc_object, exc_tb)
-    raise Exception(str(e)) 
+        HTTPPoison.Response reqResponse = HTTPPoison.get(BaseURL + endpoint + "?id=" + id + "&returnBase64Bool=" + Poison.decode(returnBase64Bool) + "&width=" + to_string(width) + "&height=" + to_string(height), headerObject, auth)
+    
+        if debugging == true do
+          IO.puts "Response from Delete Calc: " + reqResponse.body
+        end
+
+        return reqResponse)
+      return getCalculationVisTask
+    rescue => e
+      if debugging == true do
+        IO.puts e.toString()
+      end
+      raise e.toString()
+    end
+  end
   
 ###################################################
 ## Helper Functions
