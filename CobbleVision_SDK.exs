@@ -6,7 +6,7 @@ def module CobbleVision_API do
   environmentType=false
   serverAdress="https://cobblevision.com"
 
-  valid_price_categories = ["high, "medium", "low"]
+  valid_price_categories=["high, "medium", "low"]
   valid_job_types=["QueuedJob"]
 
   debugging=false
@@ -32,8 +32,8 @@ def module CobbleVision_API do
   # @returns {Boolean} Indicating success of setting Api Auth.
 
   def setApiAuth(apiusername, apitoken)
-    apiUserName = apiusername
-    apiToken = apitoken
+    apiUserName=apiusername
+    apiToken=apitoken
     returnBool=true
   end
   
@@ -43,7 +43,7 @@ def module CobbleVision_API do
   # @returns {Boolean} Indicating success of setting Api Auth.
 
   def setDebugging(debugBool)
-     debugging = debugBool
+     debugging=debugBool
      returnBool=true
   end   
 
@@ -68,20 +68,20 @@ def module CobbleVision_API do
   # @returns {Task} Task with the UploadMediaResponse. The body is in JSON format.
   def uploadMediaFile (price_category, publicBool, name, keys, file)
     try do
-      uploadMediaTask = Task.async(fn->
-        endpoint = "media"
-        if String.at(BaseURL, String.length(BaseURL)-1] = "/" do
+      uploadMediaTask=Task.async(fn->
+        endpoint="media"
+        if String.at(BaseURL, String.length(BaseURL)-1]="/" do
           raise "BaseURL for CobbleVision is incorrect. Must end with slash!"
         end
     
-        keyArray = ["price_category", "publicBool", "name", "tags", "Your Api User Key", "Your API Token"]
-        valueArray = [price_category, publicBool, name, tags, apiUserName, apiToken]
-        typeArray = ["String", "Boolean", "String", "Array", "String", "String"]
+        keyArray=["price_category", "publicBool", "name", "tags", "Your Api User Key", "Your API Token"]
+        valueArray=[price_category, publicBool, name, tags, apiUserName, apiToken]
+        typeArray=["String", "Boolean", "String", "Array", "String", "String"]
     
         try do
           checkTypeOfParameter(valueArray, typeArray)
-        rescue => e
-          err_message = String.to_integer(e.toString())
+        rescue=>e
+          err_message=String.to_integer(e.toString())
           if is_integer(err_message) do
             raise "The provided data is not valid: ", keyArray[err_message] + "is not of type " + typeArray[err_message]
           else
