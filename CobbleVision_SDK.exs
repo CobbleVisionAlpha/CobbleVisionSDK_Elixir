@@ -551,4 +551,4 @@ def module CobbleVision_API do
   def wait(timeInMS)
     Process.sleep(timeInMS)
   end
-
+end
