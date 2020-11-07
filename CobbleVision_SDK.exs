@@ -85,7 +85,7 @@ def module CobbleVision_API do
           if is_integer(err_message) do
             raise "The provided data is not valid: ", keyArray[err_message] + "is not of type " + typeArray[err_message]
           else
-            raise e.toString()
+            raise e.message
           end
         end
 
@@ -108,20 +108,20 @@ def module CobbleVision_API do
          IO.puts "Response from Media Upload: " + reqResponse.body
         end
 
-        return reqResponse)
-      return uploadMediaTask
+        response = reqResponse)
+      response = uploadMediaTask
     rescue => e
       if debugging == true do
-        IO.puts e.toString()
+        IO.puts e.message
       end
-      raise e.toString()
+      raise e.message
     end
   end
 
   # This function deletes Media from CobbleVision
   # @async
   # @function deleteMediaFile()  
-  # @param {Array} IDArray Array of ID's as Strings
+  # @param {List} IDArray Array of ID's as Strings
   # @returns {Task} Task with the DeleteMediaResponse. The body is in JSON format.
 
   def deleteMediaFile (IDArray)
@@ -144,7 +144,7 @@ def module CobbleVision_API do
           if is_integer(err_message) do
             raise "The provided data is not valid: ", keyArray[err_message] + "is not of type " + typeArray[err_message]
           else
-            raise e.toString()
+            raise e.message
           end
         end
         
@@ -161,13 +161,13 @@ def module CobbleVision_API do
          IO.puts "Response from Delete Media: " + reqResponse.body
         end
 
-        return reqResponse)
-      return deleteMediaTask
+        response = reqResponse)
+      response = deleteMediaTask
     rescue => e
       if debugging == true do
-        IO.puts e.toString()
+        IO.puts e.message
       end
-      raise e.toString()
+      raise e.message
     end
   end
     
@@ -175,8 +175,8 @@ def module CobbleVision_API do
   # Launch a calculation with CobbleVision's Web API. Returns a response object with body, response and headers properties, deducted from npm request module;
   # @async
   # @function launchCalculation() 
-  # @param {Array} algorithms Array of Algorithm Names
-  # @param {Array} media Array of Media ID's  
+  # @param {List} algorithms Array of Algorithm Names
+  # @param {List} media Array of Media ID's  
   # @param {String} type Type of Job - Currently Always "QueuedJob"
   # @param {String} [notificationURL] Optional - Notify user upon finishing calculation!
   # @returns {Task} Task with the LaunchCalculationResponse. The body is in JSON format.  
@@ -201,7 +201,7 @@ def module CobbleVision_API do
           if is_integer(err_message) do
             raise "The provided data is not valid: ", keyArray[err_message] + "is not of type " + typeArray[err_message]
           else
-            raise e.toString()
+            raise e.message
           end
         end
         
@@ -232,20 +232,20 @@ def module CobbleVision_API do
          IO.puts "Response from  launch Calc: " + reqResponse.body
         end
 
-        return reqResponse)
-      return launchCalculationTask
+        response = reqResponse)
+      response = launchCalculationTask
     rescue => e
       if debugging == true do
-        IO.puts e.toString()
+        IO.puts e.message
       end
-      raise e.toString()
+      raise e.message
     end
   end
     
   # This function waits until the given calculation ID's are ready to be downloaded!
   # @async
   # @function waitForCalculationCompletion() 
-  # @param {Array} calculationIDArray Array of Calculation ID's
+  # @param {List} calculationIDArray Array of Calculation ID's
   # @returns {Task} Task with the WaitForCalculationResponse. The body is in JSON format.   
 
   def waitForCalculationCompletion(calculationIDArray)
@@ -268,7 +268,7 @@ def module CobbleVision_API do
           if is_integer(err_message) do
             raise "The provided data is not valid: ", keyArray[err_message] + "is not of type " + typeArray[err_message]
           else
-            raise e.toString()
+            raise e.message
           end
         end
         
@@ -306,7 +306,7 @@ def module CobbleVision_API do
             if e.message === "Interrupt" do
               calculationFinishedBool = false
             else
-              raise e.toString()
+              raise e.message
             end
           end
       
@@ -319,21 +319,20 @@ def module CobbleVision_API do
           IO.puts "Response from Wait For Calc: " + reqResponse.body
         end
 
-        return reqResponse)
-      return waitForCalculationTask
+        response = reqResponse)
+      response = waitForCalculationTask
     rescue => e
       if debugging == true do
-        IO.puts e.toString()
+        IO.puts e.message
       end
-      raise e.toString()
+      raise e.message
     end
   end
-
 
   # This function deletes Result Files or calculations in status "waiting" from CobbleVision. You cannot delete finished jobs beyond their result files, as we keep them for billing purposes.
   # @async
   # @function deleteCalculation()
-  # @param {Array} IDArray Array of ID's as Strings
+  # @param {List} IDArray Array of ID's as Strings
   # @returns {Task} Task with the DeleteCalculationResponse. The body is in JSON format.
        
   def deleteCalculation(IDArray)   
@@ -356,7 +355,7 @@ def module CobbleVision_API do
           if is_integer(err_message) do
             raise "The provided data is not valid: ", keyArray[err_message] + "is not of type " + typeArray[err_message]
           else
-            raise e.toString()
+            raise e.message
           end
         end
 
@@ -373,20 +372,20 @@ def module CobbleVision_API do
           IO.puts "Response from Delete Calc: " + reqResponse.body
         end
 
-        return reqResponse)
-      return deleteCalculationTask
+        response = reqResponse)
+      response = deleteCalculationTask
     rescue => e
       if debugging == true do
-        IO.puts e.toString()
+        IO.puts e.message
       end
-      raise e.toString()
+      raise e.message
     end
   end
     
   # Get Calculation Result with CobbleVision's Web API. Returns a response object with body, response and headers properties, deducted from npm request module;
   # @async
   # @function getCalculationResult()
-  # @param {Array} IDArray ID of calculation to return result Array 
+  # @param {List} IDArray ID of calculation to return result Array 
   # @param {Boolean} returnOnlyStatusBool Return full result or only status? See Doc for more detailed description!
   # @returns {Task} Task with the GetCalculationResult. The body is in json format.
   def getCalculationResult(IDArray, returnOnlyStatusBool)
@@ -409,7 +408,7 @@ def module CobbleVision_API do
           if is_integer(err_message) do
             raise "The provided data is not valid: ", keyArray[err_message] + "is not of type " + typeArray[err_message]
           else
-            raise e.toString()
+            raise e.message
           end
         end
 
@@ -426,13 +425,13 @@ def module CobbleVision_API do
           IO.puts "Response from Delete Calc: " + reqResponse.body
         end
 
-        return reqResponse)
-      return getCalculationResultTask
+        response = reqResponse)
+      response = getCalculationResultTask
     rescue => e
       if debugging == true do
-        IO.puts e.toString()
+        IO.puts e.message
       end
-      raise e.toString()
+      raise e.message
     end
   end
 
@@ -456,7 +455,7 @@ def module CobbleVision_API do
 
         keyArray = ["id", "returnBase64Bool", "width", "height", "Your Api Username", "Your API Token"]
         valueArray = [id, returnBase64Bool, width, height, apiuserName, apitoken]
-        typeArray = ["String", "Boolean", "Number", "Number" "String", "String"]
+        typeArray = ["String", "Boolean", "Number", "Number", "String", "String"]
     
         try do
           checkTypeOfParameter(valueArray, typeArray)
@@ -465,7 +464,7 @@ def module CobbleVision_API do
           if is_integer(err_message) do
             raise "The provided data is not valid: ", keyArray[err_message] + "is not of type " + typeArray[err_message]
           else
-            raise e.toString()
+            raise e.message
           end
         end
 
@@ -490,13 +489,13 @@ def module CobbleVision_API do
           IO.puts "Response from Delete Calc: " + reqResponse.body
         end
 
-        return reqResponse)
-      return getCalculationVisTask
+        response = reqResponse)
+      response = getCalculationVisTask
     rescue => e
       if debugging == true do
-        IO.puts e.toString()
+        IO.puts e.message
       end
-      raise e.toString()
+      raise e.message
     end
   end
   
@@ -504,87 +503,52 @@ def module CobbleVision_API do
 ## Helper Functions
 ###################################################
 
-# TypeChecking of Values
-# @sync
-# @function checktypeOfParameter()
-# @param {array} targetArray Array of values to be checked
-# @param {array} typeArray Array of types in strings to be checked against
-# @returns {boolean} Success of Check
-async def checktypeOfParameter(targetArray, assertTypeArray):
-  try:
-    for counter,tArr in enumerate(targetArray):
-      if type(tArr) != assertTypeArray[counter]:
-        if type(targetArray != "list"):
-          raise Exception(counter)
-      else:
-        raise Exception(counter)
-      return True
-  except Exception as e:
-    exc_type, exc_object, exc_tb = sys.exc_info()
-    print(exc_type, exc_object, exc_tb)
-    raise Exception(str(e))
+  # TypeChecking of Values
+  # @sync
+  # @function checktypeOfParameter()
+  # @param {List} targetArray Array of values to be checked
+  # @param {List} typeArray Array of types in strings to be checked against
+  # @returns {Boolean} Success of Check
+  def checktypeOfParameter(targetArray, assertTypeArray)
+    try do
+      Enum.each(Enum.with_index(targetArray), fn (targetElement, index) ->
+        if !(getRealType(targetElement) != assertTypeArray[index]) do
+          raise Exception(to_string(index))
+        end
+      )
+      return true
+    rescue => e
+      raise e.message
 
-def typeof(self) do
-        cond do
-            is_float(self)    -> "float"
-            is_number(self)   -> "number"
-            is_atom(self)     -> "atom"
-            is_boolean(self)  -> "boolean"
-            is_binary(self)   -> "binary"
-            is_function(self) -> "function"
-            is_list(self)     -> "list"
-            is_tuple(self)    -> "tuple"
-            true              -> "idunno"
-        end    
+  def getRealType(element)
+      cond do
+            is_number(element) -> "Number"
+            is_boolean(element) -> "Boolean"
+            is_list(element) -> "Array"
+            is_string(element) -> "String"
+      end    
+  end
+
+  # Check Array of Mongo IDs for Invalid Values
+  # @sync
+  # @function checkIDArrayForInvalidValues()
+  # @param {List} IDArray Array of Mongo IDs
+  # @returns {Boolean} Success of Check
+  def checkListForInvalidObjectIDs(IDArray)
+    try do
+      Enum.each(IDArray, fn x -> BSON.ObjectID(x))
+      return true
+    rescue => e
+      return false
     end
-
-# Check Array of Mongo IDs for Invalid Values
-# @sync
-# @function checkIDArrayForInvalidValues()
-# @param {array} IDArray Array of Mongo IDs
-# @returns {boolean} Success of Check
-async def checkForValidObjectID(IDArray):
-  try:
-    for id in IDArray:
-      ObjectId(id)
-    return True
-  except Exception as e:
-    exc_type, exc_object, exc_tb = sys.exc_info()
-    print(exc_type, exc_object, exc_tb)
-    raise Exception(str(e))
-
-# Verify url using python regex combination
-# @sync
-# @function validate_url()
-# @param {tURL} URL target URL to verify
-# @returns {boolean} Success of Check
-def validate_url(tURL):
-  try:
-    regex=re.compile(r'^(?:http/ftp)s?://'
-                     r'(?:(:?:[A-Z0-9][?:[A-Z0-9]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?/[A-Z0-9-]{2,3/.?)/'
-                     r'localhost'
-                     r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/'
-                     r'\[?[A-F0-9]:[A-F0-9:]+\]?)'
-                     r'(?::\d+)?'
-                     r'(?:/?/[/?]\s+)$', re.IGNORECASE)
-    match=regex.match(str(tURL))
-    return bool(match)
-  except Exception as e:
-    exc_type, exc_object, exc_tb = sys.exc_info()
-    print(exc_type, exc_object, exc_tb)
-    raise Exception(str(e))
+  end
  
-# Wait using python sleep function
-# @async
-# @function wait()
-# @param {number} timeInMS time to wait in ms
-# @returns {boolean} Success of Wait
- async def wait(timeInMS):
-  try:
-    time.sleep(timeInMS/1000)
-    return True;
-  except Exception as e:
-    exc_type, exc_object, exc_tb = sys.exc_info()
-    print(exc_type, exc_object, exc_tb)
-    raise Exception(str(e))  
+  # Wait using sleep function
+  # @async
+  # @function wait()
+  # @param {Number} timeInMS time to wait in ms
+  # @returns {Boolean} Success of Wait
+  def wait(timeInMS)
+    Process.sleep(timeInMS)
+  end
 
